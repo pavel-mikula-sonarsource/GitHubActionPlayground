@@ -9,11 +9,12 @@ try {
     const octokit = github.getOctokit(token)
     console.log(`assignee_id: ${assignee_id}!`);
 
-    var assignees = octokit.issues.listAssignees(github.context.repo);
+    var assignees = octokit.issues.listAssignees({ owner: github.context.owner, repo: github.context });
     console.log(`Assignees: ${JSON.stringify(assignees, undefined, 2)}`);
 
     //octokit.issues.removeAssignees({ repo: github.context, issue_number: issue_number, assignees: [] });
-    octokit.issues.addAssignees({ owner: github.context.owner, repo: github.context, issue_number: issue_number, assignees: [assignee_id] });
+    var x = octokit.issues.addAssignees({ owner: github.context.owner, repo: github.context, issue_number: issue_number, assignees: [assignee_id] }).catch();
+    console.log(`x: ${JSON.stringify(x, undefined, 2)}`);
 
     const payload = JSON.stringify(github.context.payload, undefined, 2)
     console.log(`The event payload: ${payload}`);
