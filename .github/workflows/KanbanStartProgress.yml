@@ -52,9 +52,9 @@ jobs:
     assign_to_self:
         runs-on: ubuntu-latest
         if: |
-            github.event.changes.column_id.from == 11144556     // Test / ToDo
-            && github.event.project_card.column_id == 11144557  // Test / In progress
-            && github.event.project_card.content_url != null    // It's an Issue (or a PR). It's not a Note.
+            github.event.changes.column_id.from == 11144556
+            && github.event.project_card.column_id == 11144557
+            && github.event.project_card.content_url != null
         steps:
           # https://github.com/actions/github-script
           - uses: actions/github-script@v3
