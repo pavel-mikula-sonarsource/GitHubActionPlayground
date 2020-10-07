@@ -10,7 +10,7 @@ try {
     console.log(`assignee_id: ${assignee_id}!`);
 
     //octokit.issues.removeAssignees({ repo: github.context, issue_number: issue_number, assignees: [] });
-    octokit.issues.addAssignees({ repo: github.context, issue_number: issue_number, assignees =[assignee_id] });
+    octokit.issues.addAssignees({ repo: github.context, issue_number: issue_number, assignees: [assignee_id] });
 
     const payload = JSON.stringify(github.context.payload, undefined, 2)
     console.log(`The event payload: ${payload}`);
