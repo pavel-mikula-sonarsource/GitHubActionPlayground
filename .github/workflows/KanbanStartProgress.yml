@@ -45,10 +45,18 @@ on:
 #        token: ${{ secrets.GITHUB_TOKEN }}
 #        #issue_number: ${{ github.event.}}
 #        assignee_login: ${{ github.event.sender.login }}
+
+#https://api.github.com/repos/pavel-mikula-sonarsource/GitHubActionPlayground/issues/1
+
 jobs:
     assign_to_self:
         runs-on: ubuntu-latest
+        if: |
+            github.event.changes.column_id.from == 11144556
+            && github.event.project_card.column_id == 11144557
+            && github.event.project_card.content_url != null # It's an Issue (or a PR). It's not a Note.
         steps:
+          # https://github.com/actions/github-script
           - uses: actions/github-script@v3
             with:
                 github-token: ${{secrets.GITHUB_TOKEN}}
@@ -57,7 +65,9 @@ jobs:
                     console.log(`issue ${issue}`);
                     console.log(`issue ${JSON.stringify(issue, undefined, 2)}}`);
                     console.log(`issue.data.number ${issue.data.number}`);
-                    github.issues.addAssignees({ owner: context.repo.owner, repo: context.repo.repo, issue_number: issue.data.number, assignees: [context.payload.sender.login] });
+                    if(!issue.data.assignee){
+                        github.issues.addAssignees({ owner: context.repo.owner, repo: context.repo.repo, issue_number: issue.data.number, assignees: [context.payload.sender.login] });
+                    }
                     console.log(`The event payload: ${JSON.stringify(context.payload, undefined, 2)}`);
 
 
