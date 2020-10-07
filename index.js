@@ -9,13 +9,15 @@ try {
     const octokit = github.getOctokit(token)
     console.log(`assignee_id: ${assignee_id}!`);
 
-    console.log(`github.context.owner: ${JSON.stringify(github.context.owner, undefined, 2)}`);
+    console.log(`github.context.repo.owner: ${JSON.stringify(github.context.repo.owner, undefined, 2)}`);
     console.log(`github.context.repo: ${JSON.stringify(github.context.repo, undefined, 2)}`);
+    var assignees = octokit.issues.listAssignees(github.context.repo);
+    console.log(`Assignees v1: ${JSON.stringify(assignees, undefined, 2)}`);
     var assignees = octokit.issues.listAssignees({ owner: "pavel-mikula-sonarsource", repo: "GitHubActionPlayground" });
-    console.log(`Assignees: ${JSON.stringify(assignees, undefined, 2)}`);
+    console.log(`Assignees v2: ${JSON.stringify(assignees, undefined, 2)}`);
 
     //octokit.issues.removeAssignees({ repo: github.context, issue_number: issue_number, assignees: [] });
-    var x = octokit.issues.addAssignees({ owner: github.context.owner, repo: github.context.repo, issue_number: issue_number, assignees: [assignee_id] });
+    var x = octokit.issues.addAssignees({ owner: github.context.repo.owner, repo: github.context.repo.repo, issue_number: issue_number, assignees: [assignee_id] });
     console.log(`x: ${JSON.stringify(x, undefined, 2)}`);
 
     const payload = JSON.stringify(github.context.payload, undefined, 2)
