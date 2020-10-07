@@ -30,7 +30,7 @@ jobs:
     steps:
     - name: Hello world action step
       id: hello
-      uses: pavel-mikula-sonarsource/GitHubActionPlayground@v0.1
+      uses: pavel-mikula-sonarsource/GitHubActionPlayground@v0.3
       with:
         who-to-greet: 'Lorem ipsum'
     # Use the output from the `hello` step
