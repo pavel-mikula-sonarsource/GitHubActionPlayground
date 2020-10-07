@@ -27,6 +27,8 @@ jobs:
   hello_world_job:
     runs-on: ubuntu-latest
     name: A job to say hello
+    if: github.event.project_card.content_url != null # It's an Issue (or a PR). It's not a Note.
+
     steps:
 
     #Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -42,4 +44,4 @@ jobs:
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         #issue_number: ${{ github.event.}}
-        assignee_id: ${{ github.event.sender.id }}
+        assignee_login: ${{ github.event.sender.login }}

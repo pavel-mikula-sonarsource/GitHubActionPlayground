@@ -7,8 +7,8 @@ inputs:
   #issue_number:  # id of input
   #  description: 'Issue number'
   #  required: true
-  assignee_id:  # id of input
-    description: 'ID of a new assignee'
+  assignee_login:  # id of input
+    description: 'Login of a new assignee'
     required: true
 runs:
   using: 'node12'
