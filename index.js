@@ -17,7 +17,7 @@ try {
     //var assignees = octokit.issues.listAssignees({ owner: "pavel-mikula-sonarsource", repo: "GitHubActionPlayground" });
     //console.log(`Assignees v2: ${JSON.stringify(assignees, undefined, 2)}`);
 
-    var issue = await github.request(github.context.payload.project_card.content_url);
+    var issue = github.request(github.context.payload.project_card.content_url);
     console.log(`issue ${issue}`);
     console.log(`issue.number ${issue.number}`);
 
