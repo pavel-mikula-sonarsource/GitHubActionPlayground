@@ -36,11 +36,10 @@ jobs:
     - name: Checkout local repo
       uses: actions/checkout@v2
 
-    - name: Hello world action step
+    - name: Assign card
       uses: ./ # Uses an action in the root directory
-      id: hello
+      id: assign
       with:
-        who-to-greet: 'Lorem ipsum'
-    # Use the output from the `hello` step
-    - name: Get the output time
-      run: echo "The time was ${{ steps.hello.outputs.time }}"
+        token: ${{ secrets.GITHUB_TOKEN }}
+        #issue_number: ${{ github.event.}}
+        assignee_id: ${{ github.event.sender.id }}

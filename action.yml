@@ -1,13 +1,15 @@
-name: 'Hello World'
-description: 'Greet someone and record the time'
+name: 'Assign card'
+description: 'Remove all assignees from a card and assign the card to input user'
 inputs:
-  who-to-greet:  # id of input
-    description: 'Who to greet'
+  token:  # id of input
+    description: 'GitHub auth Token'
     required: true
-    default: 'World'
-outputs:
-  time: # id of output
-    description: 'The time we greeted you'
+  #issue_number:  # id of input
+  #  description: 'Issue number'
+  #  required: true
+  assignee_id:  # id of input
+    description: 'ID of a new assignee'
+    required: true
 runs:
   using: 'node12'
   main: 'index.js'
