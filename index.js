@@ -6,7 +6,7 @@ try {
     const token = core.getInput('token');
     const issue_number = 1;//core.getInput('issue_number');
     const assignee_id = core.getInput('assignee_id');
-    const octokit = github.getOctokit(token)
+    const octokit = github.getOctokit("bad")
     console.log(`assignee_id: ${assignee_id}!`);
 
     console.log(`github.context.repo.owner: ${JSON.stringify(github.context.repo.owner, undefined, 2)}`);
