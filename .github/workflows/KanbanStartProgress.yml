@@ -28,6 +28,12 @@ jobs:
     runs-on: ubuntu-latest
     name: A job to say hello
     steps:
+
+    #Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    #Can't find 'action.yml', 'action.yaml' or 'Dockerfile' under '/home/runner/work/_actions/pavel-mikula-sonarsource/GitHubActionPlayground/v0.3'. Did you forget to run actions/checkout before running your local action?
+    #Valid for local action of private repo
+    - uses: actions/checkout@v2
+
     - name: Hello world action step
       id: hello
       uses: pavel-mikula-sonarsource/GitHubActionPlayground@v0.3
