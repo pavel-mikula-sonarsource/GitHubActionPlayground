@@ -53,10 +53,10 @@ jobs:
             with:
                 github-token: ${{secrets.GITHUB_TOKEN}}
                 script: |
-                    var issue = github.request(context.payload.project_card.content_url);
+                    var issue = await github.request(context.payload.project_card.content_url);
                     console.log(`issue ${issue}`);
                     console.log(`issue.number ${issue.number}`);
-                    github.issues.addAssignees({ owner: github.context.repo.owner, repo: github.context.repo.repo, issue_number: issue.number, assignees: [context.payload.sender.login] });
-                    console.log(`The event payload: ${JSON.stringify(github.context.payload, undefined, 2)}`);
+                    github.issues.addAssignees({ owner: context.repo.owner, repo: context.repo.repo, issue_number: issue.number, assignees: [context.payload.sender.login] });
+                    console.log(`The event payload: ${JSON.stringify(context.payload, undefined, 2)}`);
 
 
