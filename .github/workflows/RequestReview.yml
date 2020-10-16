@@ -5,7 +5,7 @@ on:
     types: ["review_requested"]
 
 jobs:
-    assign_and_move:
+    assign_and_move_card:
         runs-on: ubuntu-latest
 
         steps:
@@ -82,7 +82,7 @@ jobs:
                         let processPR = true;
                         const matches = context.payload.pull_request.body.match(/Fixes\s*#\d+/gi);
                         if (matches) {
-                            for (var i = 0; i < matches.length; i++) {
+                            for (let i = 0; i < matches.length; i++) {
                                 console.log("Processing linked issue: " + matches[i]);
                                 let linkedIssue = await getIssue(matches[i].split("#")[1]);
                                 if (linkedIssue) {
@@ -99,30 +99,3 @@ jobs:
                             }
                         }
                         console.log("Done");
-
-
-#https://api.github.com/repos/pavel-mikula-sonarsource/GitHubActionPlayground/issues/1
-
-#jobs:
-#    assign_to_self:
-#        runs-on: ubuntu-latest
-#        if: |
-#            github.event.changes.column_id.from == 11144556
-#            && github.event.project_card.column_id == 11144557
-#            && github.event.project_card.content_url != null
-#        steps:
-#          # https://github.com/actions/github-script
-#          - uses: actions/github-script@v3
-#            with:
-#                github-token: ${{secrets.GITHUB_TOKEN}}
-#                script: |
-#                    var issue = await github.request(context.payload.project_card.content_url);
-#                    console.log(`issue ${issue}`);
-#                    console.log(`issue ${JSON.stringify(issue, undefined, 2)}}`);
-#                    console.log(`issue.data.number ${issue.data.number}`);
-#                    if(!issue.data.assignee){
-#                        github.issues.addAssignees({ owner: context.repo.owner, repo: context.repo.repo, issue_number: issue.data.number, assignees: [context.payload.sender.login] });
-#                    }
-#                    console.log(`The event payload: ${JSON.stringify(context.payload, undefined, 2)}`);
-
-

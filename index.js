@@ -78,7 +78,7 @@ async function main() {
     let processPR = true;
     const matches = context.payload.pull_request.body.match(/Fixes\s*#\d+/gi);
     if (matches) {
-        for (var i = 0; i < matches.length; i++) {
+        for (let i = 0; i < matches.length; i++) {
             console.log("Processing linked issue: " + matches[i]);
             let linkedIssue = await getIssue(matches[i].split("#")[1]);
             if (linkedIssue) {
@@ -101,7 +101,7 @@ async function main() {
     if (issue.data.pull_request) {
         const matches = issue.data.body.match(/Fixes\s*#\d+/gi);
         if (matches) {
-            for (var i = 0; i < matches.length; i++) {
+            for (let i = 0; i < matches.length; i++) {
                 let issue_number = matches[i].split("#")[1];
                 let linkedissue = null;
                 try {
