@@ -14,23 +14,91 @@ jobs:
               with:
                     github-token: ${{secrets.GITHUB_TOKEN}}
                     script: |
-                        // var issue = await github.request(context.payload.project_card.content_url);
-                        // console.log(`issue ${JSON.stringify(issue, undefined, 2)}}`);
-                        // console.log(`issue.data.number ${issue.data.number}`);
-                        //const issue_number = context.payload.number; //FIXME: Get linked issue or fallback to this
+                        const toDoColumn = 11144556;
+                        const inProgressColumn = 11144557;
+                        const reviewInProgressColumn = 11144558;
+                        const reviewApprovedColumn = 11144559;
+                        const doneColumn = 11144560;
                         //
-                        //console.log(`Updating issue #${issue_number}`);
-                        //Remove all assignees
-                        //github.issues.removeAssignees({ owner: context.repo.owner, repo: context.repo.repo, issue_number: issue_number, assignees: [context.payload.sender.login] });
-                        //Assign to reviewer
-                        //github.issues.addAssignees({ owner: context.repo.owner, repo: context.repo.repo, issue_number: issue_number, assignees: [context.payload.requested_reviewer.login] });
-                        //Add card to project (if it isn't)
-                        //const card = github.projects.createCard({column_id: 11144558, content_id: context.payload.pull_request.id, content_type: "PullRequest"}); //FIXME: Correct ID and dynamic type
-                        //console.log(`card ${JSON.stringify(card, undefined, 2)}`);
-                        //FIXME: Move card to "In Review"
-                        console.log(`The event payload: ${JSON.stringify(context.payload, undefined, 2)}`);
-                        console.log(`Repo: ${JSON.stringify(context.repo, undefined, 2)}`);
-                        console.log(`Context: ${JSON.stringify(context, undefined, 2)}`);
+                        async function getIssue(issue_number) {
+                            try {
+                                return (await github.issues.get({
+                                    owner: context.repo.owner,
+                                    repo: context.repo.repo,
+                                    issue_number
+                                })).data;
+                            }
+                            catch{
+                                console.log("Issue not found: #" + issue_number);
+                                return null;
+                            }
+                        }
+                        //
+                        async function findCard(content_url) {
+                            // Columns are searched from the most probable one
+                            const allColumns = [reviewInProgressColumn, reviewApprovedColumn, inProgressColumn, toDoColumn, doneColumn];
+                            for (let i = 0; i < allColumns.length; i++) {
+                                let cards = await github.projects.listCards({ column_id: allColumns[i] });
+                                let card = cards.data.find(x => x.content_url == content_url);
+                                if (card) {
+                                    return card;
+                                }
+                            }
+                            console.log("Card not found for: " + content_url);
+                            return null;
+                        }
+                        //
+                        async function processIssue(issue) {
+                            const oldAssignees = issue.assignees.map(x => x.login);
+                            if (oldAssignees.length) {
+                                console.log("Removing assignees: " + oldAssignees.join(", "));
+                                github.issues.removeAssignees({
+                                    owner: context.repo.owner,
+                                    repo: context.repo.repo,
+                                    issue_number: issue.number,
+                                    assignees: oldAssignees
+                                });
+                            }
+                            console.log("Assigning to: " + context.payload.requested_reviewer.login);
+                            github.issues.addAssignees({
+                                owner: context.repo.owner,
+                                repo: context.repo.repo,
+                                issue_number: issue.number,
+                                assignees: [context.payload.requested_reviewer.login]
+                            });
+                            const card = await findCard(issue.url);
+                            if (card) {
+                                console.log("Moving card");
+                                github.projects.moveCard({ card_id: card.id, position: "bottom", column_id: reviewInProgressColumn });
+                            } else if (issue.pull_request) {
+                                console.log("Creating PR card");
+                                github.projects.createCard({ column_id: reviewInProgressColumn, content_id: context.payload.pull_request.id, content_type: "PullRequest" });
+                            } else {
+                                console.log("Creating Issue card");
+                                github.projects.createCard({ column_id: reviewInProgressColumn, content_id: issue.id, content_type: "Issue" });
+                            }
+                        }
+                        //
+                        let processPR = true;
+                        const matches = context.payload.pull_request.body.match(/Fixes\s*#\d+/gi);
+                        if (matches) {
+                            for (var i = 0; i < matches.length; i++) {
+                                console.log("Processing linked issue: " + matches[i]);
+                                let linkedIssue = await getIssue(matches[i].split("#")[1]);
+                                if (linkedIssue) {
+                                    processPR = false;
+                                    processIssue(linkedIssue);
+                                }
+                            }
+                        }
+                        if (processPR) {
+                            console.log("Processing PR: #" + context.payload.number);
+                            const issue = await getIssue(context.payload.number);
+                            if (issue) {
+                                processIssue(issue);
+                            }
+                        }
+                        console.log("Done");
 
 
 #https://api.github.com/repos/pavel-mikula-sonarsource/GitHubActionPlayground/issues/1
