@@ -5,7 +5,7 @@ on:
     types: ["review_requested"]
 
 jobs:
-    say_hello:
+    assign_and_move:
         runs-on: ubuntu-latest
 
         steps:
@@ -15,12 +15,19 @@ jobs:
                     github-token: ${{secrets.GITHUB_TOKEN}}
                     script: |
                         // var issue = await github.request(context.payload.project_card.content_url);
-                        // console.log(`issue ${issue}`);
                         // console.log(`issue ${JSON.stringify(issue, undefined, 2)}}`);
                         // console.log(`issue.data.number ${issue.data.number}`);
-                        // if(!issue.data.assignee){
-                        //     github.issues.addAssignees({ owner: context.repo.owner, repo: context.repo.repo, issue_number: issue.data.number, assignees: [context.payload.sender.login] });
-                        // }
+                        const issue_number = context.payload.number; //FIXME: Get linked issue or fallback to this
+                        //
+                        console.log(`Updating issue #${issue_number}`);
+                        //Remove all assignees
+                        github.issues.removeAssignees({ owner: context.repo.owner, repo: context.repo.repo, issue_number: issue_number });
+                        //Assign to reviewer
+                        github.issues.addAssignees({ owner: context.repo.owner, repo: context.repo.repo, issue_number: issue_number, assignees: [context.payload.requested_reviewer.login] });
+                        //Add card to project (if it isn't)
+                        const card = github.projects.createCard({column_id: 11144558); //FIXME: Correct ID
+                        console.log(`card ${JSON.stringify(card, undefined, 2)}}`);
+                        //FIXME: Move card to "In Review"
                         console.log(`The event payload: ${JSON.stringify(context.payload, undefined, 2)}`);
 
 #https://api.github.com/repos/pavel-mikula-sonarsource/GitHubActionPlayground/issues/1
