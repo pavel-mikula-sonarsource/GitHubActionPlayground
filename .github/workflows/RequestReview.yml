@@ -11,17 +11,17 @@ jobs:
         steps:
             # https://github.com/actions/github-script
             - uses: actions/github-script@v3
-            with:
-                github-token: ${{secrets.GITHUB_TOKEN}}
-                script: |
-                    // var issue = await github.request(context.payload.project_card.content_url);
-                    // console.log(`issue ${issue}`);
-                    // console.log(`issue ${JSON.stringify(issue, undefined, 2)}}`);
-                    // console.log(`issue.data.number ${issue.data.number}`);
-                    // if(!issue.data.assignee){
-                    //     github.issues.addAssignees({ owner: context.repo.owner, repo: context.repo.repo, issue_number: issue.data.number, assignees: [context.payload.sender.login] });
-                    // }
-                    console.log(`The event payload: ${JSON.stringify(context.payload, undefined, 2)}`);
+              with:
+                    github-token: ${{secrets.GITHUB_TOKEN}}
+                    script: |
+                        // var issue = await github.request(context.payload.project_card.content_url);
+                        // console.log(`issue ${issue}`);
+                        // console.log(`issue ${JSON.stringify(issue, undefined, 2)}}`);
+                        // console.log(`issue.data.number ${issue.data.number}`);
+                        // if(!issue.data.assignee){
+                        //     github.issues.addAssignees({ owner: context.repo.owner, repo: context.repo.repo, issue_number: issue.data.number, assignees: [context.payload.sender.login] });
+                        // }
+                        console.log(`The event payload: ${JSON.stringify(context.payload, undefined, 2)}`);
 
 #https://api.github.com/repos/pavel-mikula-sonarsource/GitHubActionPlayground/issues/1
 
