@@ -29,6 +29,7 @@ jobs:
                         //console.log(`card ${JSON.stringify(card, undefined, 2)}`);
                         //FIXME: Move card to "In Review"
                         console.log(`The event payload: ${JSON.stringify(context.payload, undefined, 2)}`);
+                        console.log(`Repo: ${JSON.stringify(context.repo, undefined, 2)}`);
                         console.log(`Context: ${JSON.stringify(context, undefined, 2)}`);
 
 
