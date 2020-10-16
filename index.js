@@ -1,3 +1,6 @@
+// GitHub API Docs: https://octokit.github.io/rest.js/v18
+// Scaffolding inspired by: https://github.com/actions/github-script
+
 import * as core from '@actions/core'
 import { getOctokit } from '@actions/github'
 //import * as io from '@actions/io'
