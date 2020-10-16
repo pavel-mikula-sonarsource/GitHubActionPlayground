@@ -25,8 +25,8 @@ jobs:
                         //Assign to reviewer
                         github.issues.addAssignees({ owner: context.repo.owner, repo: context.repo.repo, issue_number: issue_number, assignees: [context.payload.requested_reviewer.login] });
                         //Add card to project (if it isn't)
-                        const card = github.projects.createCard({column_id: 11144558); //FIXME: Correct ID
-                        console.log(`card ${JSON.stringify(card, undefined, 2)}}`);
+                        const card = github.projects.createCard({column_id: 11144558}); //FIXME: Correct ID
+                        console.log(`card ${JSON.stringify(card, undefined, 2)}`);
                         //FIXME: Move card to "In Review"
                         console.log(`The event payload: ${JSON.stringify(context.payload, undefined, 2)}`);
 
