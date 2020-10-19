@@ -1,5 +1,7 @@
 // GitHub API Docs: https://octokit.github.io/rest.js/v18
 // Scaffolding inspired by: https://github.com/actions/github-script
+// To run the script locally from PowerShell:
+// clear; node .\index.js
 
 import * as core from '@actions/core'
 import { getOctokit } from '@actions/github'
