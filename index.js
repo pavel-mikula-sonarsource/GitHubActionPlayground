@@ -15,11 +15,11 @@ async function main() {
     const context = createContext();
     // github, context, core, io
     //const issue = await github.issues.get({ owner: context.repo.owner, repo: context.repo.repo, issue_number: context.payload.number });
-    const toDoColumn = 11144556;
-    const inProgressColumn = 11144557;
-    const reviewInProgressColumn = 11144558;
-    const reviewApprovedColumn = 11144559;
-    const doneColumn = 11144560;
+    const TODO_COLUMN = 11144556;
+    const IN_PROGRESS_COLUMN = 11144557;
+    const REVIEW_IN_PROGRESS_COLUMN = 11144558;
+    const REVIEW_APPROVED_COLUMN = 11144559;
+    const DONE_COLUMN = 11144560;
     //
     async function getIssue(issue_number) {
         try {
@@ -29,15 +29,15 @@ async function main() {
                 issue_number
             })).data;
         }
-        catch{
-            console.log("Issue not found: #" + issue_number);
+        catch (error) {
+            console.log(`Issue #${issue_number} not found: ${error}`);
             return null;
         }
     }
     //
     async function findCard(content_url) {
         // Columns are searched from the most probable one
-        const allColumns = [reviewInProgressColumn, reviewApprovedColumn, inProgressColumn, toDoColumn, doneColumn];
+        const allColumns = [REVIEW_IN_PROGRESS_COLUMN, REVIEW_APPROVED_COLUMN, IN_PROGRESS_COLUMN, TODO_COLUMN, DONE_COLUMN];
         for (let i = 0; i < allColumns.length; i++) {
             let cards = await github.projects.listCards({ column_id: allColumns[i] });
             let card = cards.data.find(x => x.content_url == content_url);
@@ -49,34 +49,43 @@ async function main() {
         return null;
     }
     //
-    async function processIssue(issue) {
+    async function removeAssignees(issue){
         const oldAssignees = issue.assignees.map(x => x.login);
-        if (oldAssignees.length) {
+        if (oldAssignees.length !== 0) {
             console.log("Removing assignees: " + oldAssignees.join(", "));
-            github.issues.removeAssignees({
+            await github.issues.removeAssignees({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: issue.number,
                 assignees: oldAssignees
             });
         }
-        console.log("Assigning to: " + context.payload.requested_reviewer.login);
-        github.issues.addAssignees({
+    }
+    //
+    async function addAssignee(issue, login) {
+        console.log("Assigning to: " + login);
+        await github.issues.addAssignees({
             owner: context.repo.owner,
             repo: context.repo.repo,
             issue_number: issue.number,
-            assignees: [context.payload.requested_reviewer.login]
+            assignees: [login]
         });
+    }
+    //
+    async function processIssue(issue) {
+
+        removeAssignees(issue);
+        addAssignee(issue, context.payload.requested_reviewer.login);
         const card = await findCard(issue.url);
         if (card) {
             console.log("Moving card");
-            github.projects.moveCard({ card_id: card.id, position: "bottom", column_id: reviewInProgressColumn });
+            github.projects.moveCard({ card_id: card.id, position: "bottom", column_id: REVIEW_IN_PROGRESS_COLUMN });
         } else if (issue.pull_request) {
             console.log("Creating PR card");
-            github.projects.createCard({ column_id: reviewInProgressColumn, content_id: context.payload.pull_request.id, content_type: "PullRequest" });
+            github.projects.createCard({ column_id: REVIEW_IN_PROGRESS_COLUMN, content_id: context.payload.pull_request.id, content_type: "PullRequest" });
         } else {
             console.log("Creating Issue card");
-            github.projects.createCard({ column_id: reviewInProgressColumn, content_id: issue.id, content_type: "Issue" });
+            github.projects.createCard({ column_id: REVIEW_IN_PROGRESS_COLUMN, content_id: issue.id, content_type: "Issue" });
         }
     }
     //
@@ -95,11 +104,12 @@ async function main() {
     if (processPR) {
         console.log("Processing PR: #" + context.payload.number);
         const issue = await getIssue(context.payload.number);
-        if (issue) {
+        if (issue && issue.state == "open") {
             processIssue(issue);
         }
     }
     console.log("Done");
+
 
 
     /*
