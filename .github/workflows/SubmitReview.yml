@@ -8,9 +8,9 @@ jobs:
   assign_and_move_card:
     name: Assign issue to PR author and move Kanban card
     runs-on: ubuntu-latest
-    if: |
-        github.event.review.state == "changes_requested"
-        || github.event.review.state == "approved"
+#    if: |
+#        github.event.review.state == "changes_requested"
+#        || github.event.review.state == "approved"
 
     steps:
       # https://github.com/actions/github-script
