@@ -9,7 +9,8 @@ jobs:
     name: Assign issue to PR author and move Kanban card
     runs-on: ubuntu-latest
     if: |
-        github.event.review.state == "changes_requested"
+        github.event.review.state == "changes_requested" // error
+        && github.event.review.state == "changes_requested"
 
     steps:
       # https://github.com/actions/github-script
