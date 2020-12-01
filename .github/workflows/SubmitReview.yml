@@ -1,0 +1,23 @@
+name: Request review
+
+on:
+  pull_request_review:
+    types: ["submitted"]
+
+jobs:
+  assign_and_move_card:
+    name: Assign issue to PR author and move Kanban card
+    runs-on: ubuntu-latest
+#    if: |
+#        github.event.changes.column_id.from == 11144556
+#        && github.event.project_card.column_id == 11144557
+#        && github.event.project_card.content_url != null
+
+    steps:
+      # https://github.com/actions/github-script
+      - uses: actions/github-script@v3
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            console.log(`Payload: ${JSON.stringify(context.payload, undefined, 2)}`);
+            console.log(`Context: ${JSON.stringify(context, undefined, 2)}`);
