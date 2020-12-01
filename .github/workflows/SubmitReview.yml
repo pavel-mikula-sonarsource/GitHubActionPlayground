@@ -8,10 +8,9 @@ jobs:
   assign_and_move_card:
     name: Assign issue to PR author and move Kanban card
     runs-on: ubuntu-latest
-#    if: |
-#        github.event.changes.column_id.from == 11144556
-#        && github.event.project_card.column_id == 11144557
-#        && github.event.project_card.content_url != null
+    if: |
+        github.event.review.state == "changes_requested"
+        || github.event.review.state == "approved"
 
     steps:
       # https://github.com/actions/github-script
@@ -19,5 +18,99 @@ jobs:
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
-            console.log(`Payload: ${JSON.stringify(context.payload, undefined, 2)}`);
-            console.log(`Context: ${JSON.stringify(context, undefined, 2)}`);
+            const TODO_COLUMN = 11144556;
+            const IN_PROGRESS_COLUMN = 11144557;
+            const REVIEW_IN_PROGRESS_COLUMN = 11144558;
+            const REVIEW_APPROVED_COLUMN = 11144559;
+            const DONE_COLUMN = 11144560;
+            //
+            async function getIssue(issue_number) {
+                try {
+                    return (await github.issues.get({
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        issue_number
+                    })).data;
+                }
+                catch (error) {
+                    console.log(`Issue #${issue_number} not found: ${error}`);
+                    return null;
+                }
+            }
+            //
+            async function findCard(content_url) {
+                // Columns are searched from the most probable one
+                const allColumns = [REVIEW_IN_PROGRESS_COLUMN, REVIEW_APPROVED_COLUMN, IN_PROGRESS_COLUMN, TODO_COLUMN, DONE_COLUMN];
+                for (let i = 0; i < allColumns.length; i++) {
+                    let cards = await github.projects.listCards({ column_id: allColumns[i] });
+                    let card = cards.data.find(x => x.content_url == content_url);
+                    if (card) {
+                        return card;
+                    }
+                }
+                console.log("Card not found for: " + content_url);
+                return null;
+            }
+            //
+            async function removeAssignees(issue){
+                const oldAssignees = issue.assignees.map(x => x.login);
+                if (oldAssignees.length !== 0) {
+                    console.log("Removing assignees: " + oldAssignees.join(", "));
+                    await github.issues.removeAssignees({
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        issue_number: issue.number,
+                        assignees: oldAssignees
+                    });
+                }
+            }
+            //
+            async function addAssignee(issue, login) {
+                console.log("Assigning to: " + login);
+                await github.issues.addAssignees({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: issue.number,
+                    assignees: [login]
+                });
+            }
+            //
+            async function processIssue(issue) {
+                if (issue.state == "open") {
+                    const pr = context.payload.pull_request;
+                    if (pr.author_association == "OWNER" || pr.author_association == "MEMBER") {
+                        removeAssignees(issue);
+                        addAssignee(issue, pr.user.login);
+                    } else {
+                        console.log("Skip assignment. Author association: " + pr.author_association);
+                    }
+                    const card = await findCard(issue.url);
+                    if (card) {
+                        console.log("Moving card");
+                        const newColumn = context.payload.review.state == "approved" ? REVIEW_APPROVED_COLUMN : IN_PROGRESS_COLUMN;
+                        github.projects.moveCard({ card_id: card.id, position: "bottom", column_id: newColumn });
+                    }
+                }
+            }
+            //
+            let processPR = true;
+            const pr = context.payload.pull_request;
+            const matches = pr.body.match(/Fixes\s*#\d+/gi);
+            if (matches) {
+                for (let i = 0; i < matches.length; i++) {
+                    console.log("Processing linked issue: " + matches[i]);
+                    let linkedIssue = await getIssue(matches[i].split("#")[1]);
+                    if (linkedIssue) {
+                        processPR = false;
+                        processIssue(linkedIssue);
+                    }
+                }
+            }
+            if (processPR) {
+                console.log("Processing PR: #" + pr.number);
+                const issue = await getIssue(pr.number);
+                if (issue) {
+                    processIssue(issue);
+                }
+            }
+            console.log("Done");
