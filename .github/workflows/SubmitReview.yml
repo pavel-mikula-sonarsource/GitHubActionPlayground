@@ -12,10 +12,10 @@ jobs:
     name: Assign issue to PR author and move Kanban card
     runs-on: ubuntu-latest
     if: |
-        github.event != null // error
-        && github.event != null
+        github.event.review.state == "changes_requested"
 
     steps:
+#        && github.event != null
       # https://github.com/actions/github-script
       - uses: actions/github-script@v3
         with:
