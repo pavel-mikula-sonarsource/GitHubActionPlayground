@@ -79,11 +79,15 @@ jobs:
             async function processIssue(issue) {
                 if (issue.state == "open") {
                     const pr = context.payload.pull_request;
-                    if (pr.author_association == "OWNER" || pr.author_association == "MEMBER") {
-                        removeAssignees(issue);
-                        addAssignee(issue, pr.user.login);
-                    } else {
-                        console.log("Skip assignment. Author association: " + pr.author_association);
+                    switch(pr.author_association){
+                        case "OWNER":
+                        case "MEMBER":
+                        case "COLLABORATOR":
+                            removeAssignees(issue);
+                            addAssignee(issue, pr.user.login);
+                            break;
+                        deafult:
+                            console.log("Skip assignment. Author association: " + pr.author_association);
                     }
                     const card = await findCard(issue.url);
                     if (card) {
