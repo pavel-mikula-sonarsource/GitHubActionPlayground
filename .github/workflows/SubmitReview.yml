@@ -4,18 +4,16 @@ on:
   pull_request_review:
     types: ["submitted"]
 
-#        github.event.review.state == "changes_requested" // error
-#        && github.event.review.state == "changes_requested"
-
 jobs:
   assign_and_move_card:
     name: Assign issue to PR author and move Kanban card
     runs-on: ubuntu-latest
+    # Single quotes must be used here. https://docs.github.com/en/free-pro-team@latest/actions/reference/context-and-expression-syntax-for-github-actions#literals
     if: |
-        github.event.review.state == "changes_requested"
+        github.event.review.state == 'approved'
+        || github.event.review.state == 'changes_requested'
 
     steps:
-#        && github.event != null
       # https://github.com/actions/github-script
       - uses: actions/github-script@v3
         with:
