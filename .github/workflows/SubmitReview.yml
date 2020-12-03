@@ -54,6 +54,33 @@ jobs:
                 return null;
             }
             //
+            async function anyRequestedReviewerRequestChanges() {
+                const per_page = 100;   // Allowed maximum
+                const latest = {};
+                const pr = context.payload.pull_request;
+                let reviews = null, page = 0;
+                do {
+                    page++;
+                    reviews = (await github.pulls.listReviews({
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        pull_number: pr.number,
+                        per_page,
+                        page
+                    })).data;
+                    for (let i = 0; i < reviews.length; i++) {
+                        latest[reviews[i].user.login] = reviews[i];
+                    }
+                } while (reviews.length == per_page);
+                for (let i = 0; i < pr.requested_reviewers.length; i++) {
+                    const review = latest[pr.requested_reviewers[i]];
+                    if (review != null && review.state == "CHANGES_REQUESTED") {
+                        return true;
+                    }
+                }
+                return false;
+            }
+            //
             async function removeAssignees(issue){
                 const oldAssignees = issue.assignees.map(x => x.login);
                 if (oldAssignees.length !== 0) {
@@ -77,12 +104,13 @@ jobs:
                 });
             }
             //
-            async function processIssue(issue) {
+            async function processIssue(issue, anyRequestChanges) {
                 if (issue.state == "open") {
                     removeAssignees(issue);
                     addAssignee(issue, context.payload.pull_request.user.login);
                     const card = await findCard(issue.url);
-                    const newColumn = context.payload.review.state == "approved" ? REVIEW_APPROVED_COLUMN : IN_PROGRESS_COLUMN;
+                    // Approved & Commented should also go to "In progress" if somebody registers the YML for "commented"
+                    const newColumn = context.payload.review.state == "approved" && !anyRequestChanges ? REVIEW_APPROVED_COLUMN : IN_PROGRESS_COLUMN;
                     if (card && card.column_id != newColumn) {
                         console.log("Moving card");
                         github.projects.moveCard({ card_id: card.id, position: "bottom", column_id: newColumn });
@@ -92,6 +120,7 @@ jobs:
             //
             let processPR = true;
             const pr = context.payload.pull_request;
+            const anyRequestChanges = anyRequestedReviewerRequestChanges(pr.number);
             const matches = pr.body.match(/Fixes\s*#\d+/gi);
             if (matches) {
                 for (let i = 0; i < matches.length; i++) {
@@ -99,7 +128,7 @@ jobs:
                     let linkedIssue = await getIssue(matches[i].split("#")[1]);
                     if (linkedIssue) {
                         processPR = false;
-                        processIssue(linkedIssue);
+                        processIssue(linkedIssue, anyRequestChanges);
                     }
                 }
             }
@@ -107,7 +136,7 @@ jobs:
                 console.log("Processing PR: #" + pr.number);
                 const issue = await getIssue(pr.number);
                 if (issue) {
-                    processIssue(issue);
+                    processIssue(issue, anyRequestChanges);
                 }
             }
             console.log("Done");
