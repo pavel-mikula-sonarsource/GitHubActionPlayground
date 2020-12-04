@@ -1,4 +1,4 @@
-name: Start Progress
+name: Log Start Progress
 
 on:
   project_card:
