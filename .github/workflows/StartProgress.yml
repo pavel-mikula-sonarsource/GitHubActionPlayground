@@ -8,8 +8,8 @@ jobs:
   assign_to_self:
     runs-on: ubuntu-latest
     if: |
-        github.event.changes.column_id.from == 11144556
-        && github.event.project_card.column_id == 11144557
+        github.event.changes.column_id.from == 11144556     #To do column
+        && github.event.project_card.column_id == 11144557  #In progress column
         && github.event.project_card.content_url != null
     steps:
       # https://github.com/actions/github-script
@@ -35,5 +35,3 @@ jobs:
                 addAssignee(issue, context.payload.sender.login);
             }
             console.log(`Done`);
-
-
