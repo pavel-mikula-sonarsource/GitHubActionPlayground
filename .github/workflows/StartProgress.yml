@@ -29,9 +29,9 @@ jobs:
             }
             //
             const url = context.payload.project_card.content_url;
-            console.log("Processing " + url)
+            console.log("Processing " + url);
             var issue = (await github.request(url)).data;
-            if(!issue.data.assignee){
+            if(!issue.assignee){
                 addAssignee(issue, context.payload.sender.login);
             }
             console.log(`Done`);
