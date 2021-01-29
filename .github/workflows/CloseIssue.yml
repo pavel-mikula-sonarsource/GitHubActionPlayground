@@ -3,6 +3,8 @@ name: Submit Review
 on:
   issues:
     types: ["closed"]
+  pull_request:
+    types: ["closed"]
 
 jobs:
   assign_and_move_card:
@@ -45,5 +47,5 @@ jobs:
                 }
             }
             //
-            processIssue(context.payload.issue);
+            processIssue(typeof context.payload.issue == "undefined" ? context.payload.pull_request : context.payload.issue);
             console.log("Done");
