@@ -3,6 +3,8 @@ name: Log Close Issue
 on:
   issues:
     types: ["closed"]
+  pull_request:
+    types: ["closed"]
 
 jobs:
   assign_and_move_card:
