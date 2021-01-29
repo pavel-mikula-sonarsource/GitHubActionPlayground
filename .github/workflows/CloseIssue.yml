@@ -8,11 +8,6 @@ jobs:
   assign_and_move_card:
     name: Assign issue to PR author and move Kanban card
     runs-on: ubuntu-latest
-    # Single quotes must be used here https://docs.github.com/en/free-pro-team@latest/actions/reference/context-and-expression-syntax-for-github-actions#literals
-    # PRs from forks don't have required token authorization
-    if: |
-        github.event.pull_request.head.repo.full_name == github.repository
-        && (github.event.review.state == 'approved' || github.event.review.state == 'changes_requested')
 
     steps:
       # https://github.com/actions/github-script
