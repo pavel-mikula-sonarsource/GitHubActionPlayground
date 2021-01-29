@@ -1,3 +1,3 @@
 # GitHubActionPlayground
 
-Hello
+God news
