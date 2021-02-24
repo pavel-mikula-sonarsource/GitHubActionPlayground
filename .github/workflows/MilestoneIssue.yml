@@ -17,5 +17,5 @@ jobs:
           script: |
             const TODO_COLUMN = 11144556;
             console.log("Creating Issue card");
-            github.projects.createCard({ column_id: TODO_COLUMN, content_id: issue.id, content_type: "Issue" });
+            github.projects.createCard({ column_id: TODO_COLUMN, content_id: context.payload.issue.id, content_type: "Issue" });
             console.log("Done");
