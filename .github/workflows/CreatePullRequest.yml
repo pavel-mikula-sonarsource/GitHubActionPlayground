@@ -1,16 +1,15 @@
-name: Log Create Pull Request
+name: Create Pull Request
 
 on:
   pull_request:
     types: ["opened"]
 
 jobs:
-  fixme_job_name:
-    name: Log
+  assign_and_create_card:
+    name: Assign issue to sender and create Kanban card
     runs-on: ubuntu-latest
     # PRs from forks don't have required token authorization
-    if: |
-        github.event.pull_request.head.repo.full_name == github.repository
+    if: github.event.pull_request.head.repo.full_name == github.repository
 
     steps:
       # https://github.com/actions/github-script
