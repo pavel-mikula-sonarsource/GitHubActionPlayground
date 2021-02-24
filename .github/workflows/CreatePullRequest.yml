@@ -11,7 +11,6 @@ jobs:
     # PRs from forks don't have required token authorization
     if: |
         github.event.pull_request.head.repo.full_name == github.repository
-        && !github.event.pull_request.body.match(/Fixes\s*#\d+/gi)
 
     steps:
       # https://github.com/actions/github-script
@@ -31,6 +30,10 @@ jobs:
                 });
             }
             //
-            addAssignee(context.payload.pull_request, context.payload.sender.login);
-            github.projects.createCard({ column_id: IN_PROGRESS_COLUMN, content_id: context.payload.pull_request.id, content_type: "PullRequest" });
-            console.log("Done");
+            if(github.event.pull_request.body.match(/Fixes\s*#\d+/gi)) {
+                console.log("Skip, contains 'Fixes'");
+            } else {
+                addAssignee(context.payload.pull_request, context.payload.sender.login);
+                github.projects.createCard({ column_id: IN_PROGRESS_COLUMN, content_id: context.payload.pull_request.id, content_type: "PullRequest" });
+                console.log("Done");
+            }
