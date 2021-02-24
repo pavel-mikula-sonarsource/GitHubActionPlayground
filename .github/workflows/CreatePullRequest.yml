@@ -1,0 +1,23 @@
+name: Log Create Pull Request
+
+on:
+  pull_request:
+    types: ["opened"]
+
+jobs:
+  fixme_job_name:
+    name: Log
+    runs-on: ubuntu-latest
+    # PRs from forks don't have required token authorization
+    if: |
+        github.event.pull_request.head.repo.full_name == github.repository
+        && !github.event.pull_request.body.match(/Fixes\s*#\d+/gi)
+
+    steps:
+      # https://github.com/actions/github-script
+      - uses: actions/github-script@v3
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            const IN_PROGRESS_COLUMN = 11144557;
+            github.projects.createCard({ column_id: IN_PROGRESS_COLUMN, content_id: context.payload.pull_request.id, content_type: "PullRequest" });
