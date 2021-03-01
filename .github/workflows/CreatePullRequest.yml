@@ -29,7 +29,7 @@ jobs:
                 });
             }
             //
-            if(context.payload.pull_request.body.match(/Fixes\s*#\d+/gi)) {
+            if(context.payload.pull_request.body.match(/(close|closes|closed|fix|fixes|fixed|resolve|resolves|resolved)\s*#\d+/gi)) {
                 console.log("Skip, contains 'Fixes'");
             } else {
                 addAssignee(context.payload.pull_request, context.payload.sender.login);
