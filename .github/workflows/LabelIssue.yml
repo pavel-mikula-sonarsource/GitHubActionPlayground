@@ -11,7 +11,7 @@ jobs:
     # Single quotes must be used here https://docs.github.com/en/free-pro-team@latest/actions/reference/context-and-expression-syntax-for-github-actions#literals
     if: |
         github.event.issue.state == 'Open'
-        && github.event.label.name.startsWith('Type: ')
+        && startsWith(github.event.label.name, 'Type: ')
 
     steps:
       # https://github.com/actions/github-script
