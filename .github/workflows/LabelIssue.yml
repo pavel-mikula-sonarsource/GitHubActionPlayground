@@ -9,6 +9,7 @@ jobs:
     name: Log
     runs-on: ubuntu-latest
     # Single quotes must be used here https://docs.github.com/en/free-pro-team@latest/actions/reference/context-and-expression-syntax-for-github-actions#literals
+    # Only limited global functions are available in this context https://docs.github.com/en/actions/reference/context-and-expression-syntax-for-github-actions#functions
     if: |
         github.event.issue.state == 'Open'
         && startsWith(github.event.label.name, 'Type: ')

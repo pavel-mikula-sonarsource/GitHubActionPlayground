@@ -15,133 +15,63 @@ async function main() {
     const github = getOctokit("FIXME");
     const context = createContext();
     // github, context, core, io
-    //const issue = await github.issues.get({ owner: context.repo.owner, repo: context.repo.repo, issue_number: context.payload.number });
-    const TODO_COLUMN = 11144556;
-    const IN_PROGRESS_COLUMN = 11144557;
-    const REVIEW_IN_PROGRESS_COLUMN = 11144558;
-    const REVIEW_APPROVED_COLUMN = 11144559;
-    const DONE_COLUMN = 11144560;
     //
-    async function getIssue(issue_number) {
-        try {
-            return (await github.issues.get({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number
-            })).data;
-        }
-        catch (error) {
-            console.log(`Issue #${issue_number} not found: ${error}`);
-            return null;
-        }
-    }
-    //
-    async function findCard(content_url) {
-        // Columns are searched from the most probable one
-        const allColumns = [REVIEW_IN_PROGRESS_COLUMN, REVIEW_APPROVED_COLUMN, IN_PROGRESS_COLUMN, TODO_COLUMN, DONE_COLUMN];
-        for (let i = 0; i < allColumns.length; i++) {
-            let cards = await github.projects.listCards({ column_id: allColumns[i] });
-            let card = cards.data.find(x => x.content_url == content_url);
-            if (card) {
-                return card;
-            }
-        }
-        console.log("Card not found for: " + content_url);
-        return null;
-    }
-    //
-    async function anyRequestedReviewerRequestChanges() {
-        const per_page = 100;   // Allowed maximum
-        const latest = {};
-        const pr = context.payload.pull_request;
-        let reviews = null, page = 0;
-        do {
-            page++;
-            reviews = (await github.pulls.listReviews({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                pull_number: pr.number,
-                per_page,
-                page
-            })).data;
-            for (let i = 0; i < reviews.length; i++) {
-                latest[reviews[i].user.login] = reviews[i];
-            }
-        } while (reviews.length == per_page);
-        for (let i = 0; i < pr.requested_reviewers.length; i++) {
-            const review = latest[pr.requested_reviewers[i]];
-            if (review != null && review.state == "CHANGES_REQUESTED") {
-                return true;
-            }
-        }
-        return false;
-    }
-    //
-    async function removeAssignees(issue) {
-        const oldAssignees = issue.assignees.map(x => x.login);
-        if (oldAssignees.length !== 0) {
-            console.log("Removing assignees: " + oldAssignees.join(", "));
-            await github.issues.removeAssignees({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: issue.number,
-                assignees: oldAssignees
-            });
-        }
-    }
-    //
-    async function addAssignee(issue, login) {
-        console.log("Assigning to: " + login);
-        await github.issues.addAssignees({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            issue_number: issue.number,
-            assignees: [login]
-        });
-    }
-    //
-    async function processIssue(issue) {
-        // Requested reviewers with no review
+    //FIXME: Issue state "Open"
+    //FIXME: Label starts with "Type: "
+    //const BACKLOG_PROJECT = 12681611;
+    const mediaType = { previews: ['inertia'] }; // Column related APIs are in Alpha Preview. We need to set this HTTP Header to gain access.
 
-        removeAssignees(issue);
-        addAssignee(issue, context.payload.requested_reviewer.login);
+    let projects = await github.projects.listForRepo({ owner: "SonarSource", repo: "sonar-dotnet", mediaType });
+    console.log(`Projects: ${JSON.stringify(projects, undefined, 2)}`);
+    console.log(`----------------------------------------------`);
 
-        const card = await findCard(issue.url);
-        if (card) {
-            console.log("Moving card");
-            github.projects.moveCard({ card_id: card.id, position: "bottom", column_id: REVIEW_IN_PROGRESS_COLUMN });
-        } else if (issue.pull_request) {
-            console.log("Creating PR card");
-            github.projects.createCard({ column_id: REVIEW_IN_PROGRESS_COLUMN, content_id: context.payload.pull_request.id, content_type: "PullRequest" });
-        } else {
-            console.log("Creating Issue card");
-            github.projects.createCard({ column_id: REVIEW_IN_PROGRESS_COLUMN, content_id: issue.id, content_type: "Issue" });
-        }
-    }
-    //
-    let processPR = true;
-    const matches = context.payload.pull_request.body.match(/Fixes\s*#\d+/gi);
-    if (matches) {
-        for (let i = 0; i < matches.length; i++) {
-            console.log("Processing linked issue: " + matches[i]);
-            let linkedIssue = await getIssue(matches[i].split("#")[1]);
-            if (linkedIssue) {
-                processPR = false;
-                processIssue(linkedIssue);
-            }
-        }
-    }
-    if (processPR) {
-        console.log("Processing PR: #" + context.payload.number);
-        const issue = await getIssue(context.payload.number);
-        if (issue && issue.state == "open") {
-            processIssue(issue);
-        }
-    }
+    ////
+    //async function loadColumns() {
+    //    const columns = await github.projects.listColumns({ project_id: BACKLOG_PROJECT, mediaType });
+    //    const ret = new Map();
+    //    for (let column of columns.data) {
+    //        ret.set(column.name, column.id);
+    //    }
+    //    return ret;
+    //}
+    ////
+    //const map = await loadColumns();
+    ////
+    //async function findCard(content_url) {
+    //    // Columns are searched from the most probable one
+    //    for (let columnId of map.values()) {
+    //        let cards = await github.projects.listCards({ column_id: columnId });
+    //        let card = cards.data.find(x => x.content_url.endsWith(content_url)); // "https://" is missing from event payload
+    //        if (card) {
+    //            return card;
+    //        }
+    //    }
+    //    console.log("Card not found for: " + content_url);
+    //    return null;
+    //}
+    ////
+    //let name = context.payload.label.name;
+    //if (name.startsWith("Type: ")) {
+    //    name = name.substring(6);
+    //    if (map.has(name)) {
+    //        const newColumn = map.get(name);
+    //        const card = await findCard(context.payload.issue.url);
+    //        if (card) {
+    //            console.log("Moving card to column: " + name);
+    //            github.projects.moveCard({ card_id: card.id, position: "bottom", column_id: newColumn });
+    //        } else {
+    //            console.log("Creating card in column: " + name);
+    //            github.projects.createCard({ column_id: newColumn, content_id: context.payload.issue.id, content_type: "Issue" });
+    //        }
+    //    } else {
+    //        console.log("Backlog column doesn't exist: " + name);
+    //    }
+    //} else {
+    //    console.log("Unexpected label name: " + name);
+    //}
+
     console.log("Done");
     //
-
-
 
 
 
@@ -198,7 +128,7 @@ function handleError(err) {
 }
 
 function createContext() {
-    return { repo: createRepo(), payload: createPayloadSubmitReview() };
+    return { repo: createRepo(), payload: createPayloadLabeled() };
 }
 
 function createRepo() {
@@ -703,7 +633,6 @@ function createPayloadRequestReview() {
         }
     };
 }
-
 
 function createPayloadSubmitReview() {
     return {
@@ -1227,4 +1156,234 @@ function createPayloadSubmitReview() {
             "url": "https://api.github.com/users/PavlinII"
         }
     };
+}
+
+function createPayloadLabeled() {
+    return {
+        "action": "labeled",
+        "issue": {
+            "active_lock_reason": null,
+            "assignee": null,
+            "assignees": [],
+            "author_association": "OWNER",
+            "body": "",
+            "closed_at": null,
+            "comments": 0,
+            "comments_url": "api.github.com/repos/pavel-mikula-sonarsource/GitHubActionPlayground/issues/18/comments",
+            "created_at": "2021-02-24T15:50:52Z",
+            "events_url": "api.github.com/repos/pavel-mikula-sonarsource/GitHubActionPlayground/issues/18/events",
+            "html_url": "pavel-mikula-sonarsource/GitHubActionPlayground/issues/18",
+            "id": 815605822,
+            "labels": [
+                {
+                    "color": "CD492A",
+                    "default": false,
+                    "description": "",
+                    "id": 3088686437,
+                    "name": "Type: Abc",
+                    "node_id": "MDU6TGFiZWwzMDg4Njg2NDM3",
+                    "url": "api.github.com/repos/pavel-mikula-sonarsource/GitHubActionPlayground/labels/Type:%20Abc"
+                },
+                {
+                    "color": "EDDE9C",
+                    "default": false,
+                    "description": "",
+                    "id": 3088686675,
+                    "name": "Type: Def",
+                    "node_id": "MDU6TGFiZWwzMDg4Njg2Njc1",
+                    "url": "api.github.com/repos/pavel-mikula-sonarsource/GitHubActionPlayground/labels/Type:%20Def"
+                }
+            ],
+            "labels_url": "https://api.github.com/repos/pavel-mikula-sonarsource/GitHubActionPlayground/issues/18/labels{/name}",
+            "locked": false,
+            "milestone": {
+                "closed_at": null,
+                "closed_issues": 1,
+                "created_at": "2021-02-24T15:51:29Z",
+                "creator": {
+                    "avatar_url": "avatars.githubusercontent.com/u/57188685?v=4",
+                    "events_url": "https://api.github.com/users/pavel-mikula-sonarsource/events{/privacy}",
+                    "followers_url": "api.github.com/users/pavel-mikula-sonarsource/followers",
+                    "following_url": "https://api.github.com/users/pavel-mikula-sonarsource/following{/other_user}",
+                    "gists_url": "https://api.github.com/users/pavel-mikula-sonarsource/gists{/gist_id}",
+                    "gravatar_id": "",
+                    "html_url": "@pavel-mikula-sonarsource",
+                    "id": 57188685,
+                    "login": "pavel-mikula-sonarsource",
+                    "node_id": "MDQ6VXNlcjU3MTg4Njg1",
+                    "organizations_url": "api.github.com/users/pavel-mikula-sonarsource/orgs",
+                    "received_events_url": "api.github.com/users/pavel-mikula-sonarsource/received_events",
+                    "repos_url": "api.github.com/users/pavel-mikula-sonarsource/repos",
+                    "site_admin": false,
+                    "starred_url": "https://api.github.com/users/pavel-mikula-sonarsource/starred{/owner}{/repo}",
+                    "subscriptions_url": "api.github.com/users/pavel-mikula-sonarsource/subscriptions",
+                    "type": "User",
+                    "url": "api.github.com/users/pavel-mikula-sonarsource"
+                },
+                "description": "",
+                "due_on": null,
+                "html_url": "pavel-mikula-sonarsource/GitHubActionPlayground/milestone/2",
+                "id": 6475338,
+                "labels_url": "api.github.com/repos/pavel-mikula-sonarsource/GitHubActionPlayground/milestones/2/labels",
+                "node_id": "MDk6TWlsZXN0b25lNjQ3NTMzOA==",
+                "number": 2,
+                "open_issues": 1,
+                "state": "open",
+                "title": "v2",
+                "updated_at": "2021-06-04T12:25:09Z",
+                "url": "api.github.com/repos/pavel-mikula-sonarsource/GitHubActionPlayground/milestones/2"
+            },
+            "node_id": "MDU6SXNzdWU4MTU2MDU4MjI=",
+            "number": 18,
+            "performed_via_github_app": null,
+            "repository_url": "api.github.com/repos/pavel-mikula-sonarsource/GitHubActionPlayground",
+            "state": "open",
+            "title": "Important task",
+            "updated_at": "2021-06-15T14:33:15Z",
+            "url": "api.github.com/repos/pavel-mikula-sonarsource/GitHubActionPlayground/issues/18",
+            "user": {
+                "avatar_url": "avatars.githubusercontent.com/u/57188685?v=4",
+                "events_url": "https://api.github.com/users/pavel-mikula-sonarsource/events{/privacy}",
+                "followers_url": "api.github.com/users/pavel-mikula-sonarsource/followers",
+                "following_url": "https://api.github.com/users/pavel-mikula-sonarsource/following{/other_user}",
+                "gists_url": "https://api.github.com/users/pavel-mikula-sonarsource/gists{/gist_id}",
+                "gravatar_id": "",
+                "html_url": "@pavel-mikula-sonarsource",
+                "id": 57188685,
+                "login": "pavel-mikula-sonarsource",
+                "node_id": "MDQ6VXNlcjU3MTg4Njg1",
+                "organizations_url": "api.github.com/users/pavel-mikula-sonarsource/orgs",
+                "received_events_url": "api.github.com/users/pavel-mikula-sonarsource/received_events",
+                "repos_url": "api.github.com/users/pavel-mikula-sonarsource/repos",
+                "site_admin": false,
+                "starred_url": "https://api.github.com/users/pavel-mikula-sonarsource/starred{/owner}{/repo}",
+                "subscriptions_url": "api.github.com/users/pavel-mikula-sonarsource/subscriptions",
+                "type": "User",
+                "url": "api.github.com/users/pavel-mikula-sonarsource"
+            }
+        },
+        "label": {
+            "color": "EDDE9C",
+            "default": false,
+            "description": "",
+            "id": 3088686675,
+            "name": "Type: Def",
+            "node_id": "MDU6TGFiZWwzMDg4Njg2Njc1",
+            "url": "api.github.com/repos/pavel-mikula-sonarsource/GitHubActionPlayground/labels/Type:%20Def"
+        },
+        "repository": {
+            "archive_url": "https://api.github.com/repos/pavel-mikula-sonarsource/GitHubActionPlayground/{archive_format}{/ref}",
+            "archived": false,
+            "assignees_url": "https://api.github.com/repos/pavel-mikula-sonarsource/GitHubActionPlayground/assignees{/user}",
+            "blobs_url": "https://api.github.com/repos/pavel-mikula-sonarsource/GitHubActionPlayground/git/blobs{/sha}",
+            "branches_url": "https://api.github.com/repos/pavel-mikula-sonarsource/GitHubActionPlayground/branches{/branch}",
+            "clone_url": "pavel-mikula-sonarsource/GitHubActionPlayground.git",
+            "collaborators_url": "https://api.github.com/repos/pavel-mikula-sonarsource/GitHubActionPlayground/collaborators{/collaborator}",
+            "comments_url": "https://api.github.com/repos/pavel-mikula-sonarsource/GitHubActionPlayground/comments{/number}",
+            "commits_url": "https://api.github.com/repos/pavel-mikula-sonarsource/GitHubActionPlayground/commits{/sha}",
+            "compare_url": "https://api.github.com/repos/pavel-mikula-sonarsource/GitHubActionPlayground/compare/{base}...{head}",
+            "contents_url": "https://api.github.com/repos/pavel-mikula-sonarsource/GitHubActionPlayground/contents/{+path}",
+            "contributors_url": "api.github.com/repos/pavel-mikula-sonarsource/GitHubActionPlayground/contributors",
+            "created_at": "2020-10-06T12:38:45Z",
+            "default_branch": "master",
+            "deployments_url": "api.github.com/repos/pavel-mikula-sonarsource/GitHubActionPlayground/deployments",
+            "description": null,
+            "disabled": false,
+            "downloads_url": "api.github.com/repos/pavel-mikula-sonarsource/GitHubActionPlayground/downloads",
+            "events_url": "api.github.com/repos/pavel-mikula-sonarsource/GitHubActionPlayground/events",
+            "fork": false,
+            "forks": 0,
+            "forks_count": 0,
+            "forks_url": "api.github.com/repos/pavel-mikula-sonarsource/GitHubActionPlayground/forks",
+            "full_name": "pavel-mikula-sonarsource/GitHubActionPlayground",
+            "git_commits_url": "https://api.github.com/repos/pavel-mikula-sonarsource/GitHubActionPlayground/git/commits{/sha}",
+            "git_refs_url": "https://api.github.com/repos/pavel-mikula-sonarsource/GitHubActionPlayground/git/refs{/sha}",
+            "git_tags_url": "https://api.github.com/repos/pavel-mikula-sonarsource/GitHubActionPlayground/git/tags{/sha}",
+            "git_url": "git://github.com/pavel-mikula-sonarsource/GitHubActionPlayground.git",
+            "has_downloads": true,
+            "has_issues": true,
+            "has_pages": false,
+            "has_projects": true,
+            "has_wiki": true,
+            "homepage": null,
+            "hooks_url": "api.github.com/repos/pavel-mikula-sonarsource/GitHubActionPlayground/hooks",
+            "html_url": "pavel-mikula-sonarsource/GitHubActionPlayground",
+            "id": 301721889,
+            "issue_comment_url": "https://api.github.com/repos/pavel-mikula-sonarsource/GitHubActionPlayground/issues/comments{/number}",
+            "issue_events_url": "https://api.github.com/repos/pavel-mikula-sonarsource/GitHubActionPlayground/issues/events{/number}",
+            "issues_url": "https://api.github.com/repos/pavel-mikula-sonarsource/GitHubActionPlayground/issues{/number}",
+            "keys_url": "https://api.github.com/repos/pavel-mikula-sonarsource/GitHubActionPlayground/keys{/key_id}",
+            "labels_url": "https://api.github.com/repos/pavel-mikula-sonarsource/GitHubActionPlayground/labels{/name}",
+            "language": "JavaScript",
+            "languages_url": "api.github.com/repos/pavel-mikula-sonarsource/GitHubActionPlayground/languages",
+            "license": null,
+            "merges_url": "api.github.com/repos/pavel-mikula-sonarsource/GitHubActionPlayground/merges",
+            "milestones_url": "https://api.github.com/repos/pavel-mikula-sonarsource/GitHubActionPlayground/milestones{/number}",
+            "mirror_url": null,
+            "name": "GitHubActionPlayground",
+            "node_id": "MDEwOlJlcG9zaXRvcnkzMDE3MjE4ODk=",
+            "notifications_url": "https://api.github.com/repos/pavel-mikula-sonarsource/GitHubActionPlayground/notifications{?since,all,participating}",
+            "open_issues": 5,
+            "open_issues_count": 5,
+            "owner": {
+                "avatar_url": "avatars.githubusercontent.com/u/57188685?v=4",
+                "events_url": "https://api.github.com/users/pavel-mikula-sonarsource/events{/privacy}",
+                "followers_url": "api.github.com/users/pavel-mikula-sonarsource/followers",
+                "following_url": "https://api.github.com/users/pavel-mikula-sonarsource/following{/other_user}",
+                "gists_url": "https://api.github.com/users/pavel-mikula-sonarsource/gists{/gist_id}",
+                "gravatar_id": "",
+                "html_url": "@pavel-mikula-sonarsource",
+                "id": 57188685,
+                "login": "pavel-mikula-sonarsource",
+                "node_id": "MDQ6VXNlcjU3MTg4Njg1",
+                "organizations_url": "api.github.com/users/pavel-mikula-sonarsource/orgs",
+                "received_events_url": "api.github.com/users/pavel-mikula-sonarsource/received_events",
+                "repos_url": "api.github.com/users/pavel-mikula-sonarsource/repos",
+                "site_admin": false,
+                "starred_url": "https://api.github.com/users/pavel-mikula-sonarsource/starred{/owner}{/repo}",
+                "subscriptions_url": "api.github.com/users/pavel-mikula-sonarsource/subscriptions",
+                "type": "User",
+                "url": "api.github.com/users/pavel-mikula-sonarsource"
+            },
+            "private": false,
+            "pulls_url": "https://api.github.com/repos/pavel-mikula-sonarsource/GitHubActionPlayground/pulls{/number}",
+            "pushed_at": "2021-06-15T14:32:50Z",
+            "releases_url": "https://api.github.com/repos/pavel-mikula-sonarsource/GitHubActionPlayground/releases{/id}",
+            "size": 681,
+            "ssh_url": "git@github.com:pavel-mikula-sonarsource/GitHubActionPlayground.git",
+            "stargazers_count": 0,
+            "stargazers_url": "api.github.com/repos/pavel-mikula-sonarsource/GitHubActionPlayground/stargazers",
+            "statuses_url": "https://api.github.com/repos/pavel-mikula-sonarsource/GitHubActionPlayground/statuses/{sha}",
+            "subscribers_url": "api.github.com/repos/pavel-mikula-sonarsource/GitHubActionPlayground/subscribers",
+            "subscription_url": "api.github.com/repos/pavel-mikula-sonarsource/GitHubActionPlayground/subscription",
+            "svn_url": "pavel-mikula-sonarsource/GitHubActionPlayground",
+            "tags_url": "api.github.com/repos/pavel-mikula-sonarsource/GitHubActionPlayground/tags",
+            "teams_url": "api.github.com/repos/pavel-mikula-sonarsource/GitHubActionPlayground/teams",
+            "trees_url": "https://api.github.com/repos/pavel-mikula-sonarsource/GitHubActionPlayground/git/trees{/sha}",
+            "updated_at": "2021-06-15T14:32:52Z",
+            "url": "api.github.com/repos/pavel-mikula-sonarsource/GitHubActionPlayground",
+            "watchers": 0,
+            "watchers_count": 0
+        },
+        "sender": {
+            "avatar_url": "avatars.githubusercontent.com/u/57188685?v=4",
+            "events_url": "https://api.github.com/users/pavel-mikula-sonarsource/events{/privacy}",
+            "followers_url": "api.github.com/users/pavel-mikula-sonarsource/followers",
+            "following_url": "https://api.github.com/users/pavel-mikula-sonarsource/following{/other_user}",
+            "gists_url": "https://api.github.com/users/pavel-mikula-sonarsource/gists{/gist_id}",
+            "gravatar_id": "",
+            "html_url": "@pavel-mikula-sonarsource",
+            "id": 57188685,
+            "login": "pavel-mikula-sonarsource",
+            "node_id": "MDQ6VXNlcjU3MTg4Njg1",
+            "organizations_url": "api.github.com/users/pavel-mikula-sonarsource/orgs",
+            "received_events_url": "api.github.com/users/pavel-mikula-sonarsource/received_events",
+            "repos_url": "api.github.com/users/pavel-mikula-sonarsource/repos",
+            "site_admin": false,
+            "starred_url": "https://api.github.com/users/pavel-mikula-sonarsource/starred{/owner}{/repo}",
+            "subscriptions_url": "api.github.com/users/pavel-mikula-sonarsource/subscriptions",
+            "type": "User",
+            "url": "api.github.com/users/pavel-mikula-sonarsource"
+        }
+    }
 }
