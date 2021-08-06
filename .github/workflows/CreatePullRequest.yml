@@ -29,7 +29,7 @@ jobs:
                 });
             }
             //
-            const matches = context.payload.pull_request.body.match(/(close|closes|closed|fix|fixes|fixed|resolve|resolves|resolved)\s*#\d+/gi);
+            const matches = context.payload.pull_request.body == null ? null : context.payload.pull_request.body.match(/(close|closes|closed|fix|fixes|fixed|resolve|resolves|resolved)\s*#\d+/gi);
             if(matches) {
                 console.log("Skip, contains '" + matches[0] + "'");
             } else {

@@ -90,7 +90,7 @@ jobs:
             }
             //
             let processPR = true;
-            const matches = context.payload.pull_request.body.match(/Fixes\s*#\d+/gi);
+            const matches = context.payload.pull_request.body == null ? null : context.payload.pull_request.body.match(/Fixes\s*#\d+/gi);
             if (matches) {
                 for (let i = 0; i < matches.length; i++) {
                     console.log("Processing linked issue: " + matches[i]);
