@@ -4,7 +4,7 @@
 // To run the script locally from PowerShell:
 // clear; node .\index.js
 
-const github = require("node:@actions/github");
+const github = require("@actions/github");
 const core = require("node:@actions/core");
 
 try
