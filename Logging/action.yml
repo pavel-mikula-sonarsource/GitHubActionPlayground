@@ -1,9 +1,0 @@
-name: 'Log payload'
-description: 'Logs event payload'
-inputs:
-  github-token:
-    description: 'GitHub auth Token'
-    required: true
-runs:
-  using: 'node16'
-  main: 'index.js'

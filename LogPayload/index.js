@@ -14,29 +14,5 @@ try {
     console.log("Done");
 }
 catch (ex) {
-    core.setFailed(error.message);
+    core.setFailed(ex.message);
 }
-
-/*
-import * as core from '@actions/core'
-import { getOctokit } from '@actions/github'
-//import * as io from '@actions/io'
-
-process.on('unhandledRejection', handleError)
-main().catch(handleError)
-
-async function main() {
-    const github = getOctokit("FIXME");
-    const peyload = {"test": "test"};
-    console.log("----------");
-    console.log(`Projects: ${JSON.stringify(payload, undefined, 2)}`);
-    console.log("----------");
-    console.log("Done");
-}
-
-function handleError(err) {
-    console.error(err)
-    core.setFailed(`Unhandled error: ${err}`)
-}
-
-*/
