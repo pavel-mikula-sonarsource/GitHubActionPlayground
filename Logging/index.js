@@ -7,12 +7,13 @@
 const core = require('@actions/core');
 const github = require('@actions/github');
 
-try
-{
-  const payload = JSON.stringify(github.context.payload, undefined, 2)
-  console.log(`The event payload: ${payload}`);    
+try {
+    console.log("--- Event payload ---");
+    console.log(JSON.stringify(github.context.payload, undefined, 2));
+    console.log("----------");
+    console.log("Done");
 }
-catch(ex) {
+catch (ex) {
     core.setFailed(error.message);
 }
 
@@ -27,7 +28,7 @@ main().catch(handleError)
 async function main() {
     const github = getOctokit("FIXME");
     const peyload = {"test": "test"};
-    console.log("----------");    
+    console.log("----------");
     console.log(`Projects: ${JSON.stringify(payload, undefined, 2)}`);
     console.log("----------");
     console.log("Done");
