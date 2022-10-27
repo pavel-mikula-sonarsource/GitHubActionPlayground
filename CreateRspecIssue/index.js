@@ -12,7 +12,7 @@ try {
     const repo = github.context.repo;
     const payload = github.context.payload;
     console.log("Creating issue");
-    octokit.rest.issues.create(Object.assign(Object.assign({}, repo), { title: `Update RSPEC before ${payload.milestone.title} release`, milestone: payload.milestone.title, labels: ["Type: Tooling"] }));
+    octokit.rest.issues.create(Object.assign(Object.assign({}, repo), { title: `Update RSPEC before ${payload.milestone.title} release`, milestone: payload.milestone.number, labels: ["Type: Tooling"] }));
     console.log("Done");
 }
 catch (ex) {
