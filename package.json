@@ -1,22 +1,19 @@
 {
-  "name": "GitHubActionPlayground",
-  "version": "1.0.0",
-  "description": "Hello",
-  "main": "index.js",
+  "name": "backlog-automation",
+  "version": "0.0.0",
+  "description": "BacklogAutomation",
+  "main": "app.js",
+  "author": {
+    "name": ""
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc --build",
+    "clean": "tsc --build --clean"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/pavel-mikula-sonarsource/GitHubActionPlayground.git"
+  "devDependencies": {
+    "@types/node": "^14.18.33",
+    "typescript": "^4.8.4"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/pavel-mikula-sonarsource/GitHubActionPlayground/issues"
-  },
-  "homepage": "https://github.com/pavel-mikula-sonarsource/GitHubActionPlayground#readme",
   "dependencies": {
     "@actions/core": "^1.10.0",
     "@actions/github": "^5.1.1"
