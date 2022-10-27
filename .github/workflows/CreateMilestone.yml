@@ -13,10 +13,8 @@ jobs:
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
 
-  Log_job:
-    name: Log payload from created milestone
+  LogPayload_job:
+    name: Log payload
     runs-on: ubuntu-latest
     steps:
       - uses: pavel-mikula-sonarsource/GitHubActionPlayground/LogPayload@v1
-        with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
