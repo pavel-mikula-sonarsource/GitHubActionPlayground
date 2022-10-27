@@ -5,10 +5,18 @@ on:
     types: ["created"]
 
 jobs:
+  CreateIssue_job:
+    name: Create RSPEC issue
+    runs-on: ubuntu-latest
+    steps:
+      - uses: pavel-mikula-sonarsource/GitHubActionPlayground/CreateRspecIssue@v1
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+
   Log_job:
     name: Log payload from created milestone
     runs-on: ubuntu-latest
     steps:
-      - uses: pavel-mikula-sonarsource/GitHubActionPlayground/Logging@v1
+      - uses: pavel-mikula-sonarsource/GitHubActionPlayground/LogPayload@v1
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
