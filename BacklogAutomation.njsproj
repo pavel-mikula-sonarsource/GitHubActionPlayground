@@ -39,9 +39,14 @@
   <ItemGroup>
     <Folder Include="CreateRspecIssue\" />
     <Folder Include="LogPayload\" />
+    <Folder Include="lib\" />
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="CreateRspecIssue\index.ts" />
+    <TypeScriptCompile Include="lib\Action.ts" />
+    <TypeScriptCompile Include="lib\OctokitAction.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
     <TypeScriptCompile Include="LogPayload\index.ts" />
   </ItemGroup>
   <Import Project="$(VSToolsPath)\Node.js Tools\Microsoft.NodejsToolsV2.targets" />

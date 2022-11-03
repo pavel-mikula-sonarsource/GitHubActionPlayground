@@ -1,21 +1,25 @@
 "use strict";
-// GitHub API Docs: https://octokit.github.io/rest.js/v18
-// Scaffolding inspired by: https://github.com/actions/github-script
-// YML events: https://docs.github.com/en/free-pro-team@latest/actions/reference/events-that-trigger-workflows#pull_request_review
-// To run the script locally from PowerShell:
-// clear; node .\index.js
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-const core = require("@actions/core");
-const github = require("@actions/github");
-try {
-    const octokit = github.getOctokit(core.getInput("github-token"));
-    const repo = github.context.repo;
-    const payload = github.context.payload;
-    console.log("Creating issue");
-    octokit.rest.issues.create(Object.assign(Object.assign({}, repo), { title: `Update RSPEC before ${payload.milestone.title} release`, milestone: payload.milestone.number, labels: ["Type: Tooling"] }));
-    console.log("Done");
+const OctokitAction_1 = require("../lib/OctokitAction");
+class CreateRspecIssue extends OctokitAction_1.OctokitAction {
+    execute() {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.log("Creating issue");
+            yield this.octokit.rest.issues.create(this.addRepo({ title: `Update RSPEC before ${this.payload.milestone.title} release`, milestone: this.payload.milestone.number, labels: ["Type: Tooling"] }));
+            this.log("Done");
+        });
+    }
 }
-catch (ex) {
-    core.setFailed(ex.message);
-}
+const action = new CreateRspecIssue();
+action.run();
+// FIXME: UTs
 //# sourceMappingURL=index.js.map
