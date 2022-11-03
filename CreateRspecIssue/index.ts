@@ -10,5 +10,3 @@ class CreateRspecIssue extends OctokitAction {
 
 const action = new CreateRspecIssue();
 action.run();
-
-// FIXME: UTs

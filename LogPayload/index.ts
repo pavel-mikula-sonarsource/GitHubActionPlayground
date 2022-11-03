@@ -1,4 +1,3 @@
-
 import { Action } from "../lib/Action";
 
 class LogPayload extends Action {
