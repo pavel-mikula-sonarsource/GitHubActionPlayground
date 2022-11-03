@@ -37,4 +37,8 @@ export abstract class Action {
     protected addRepo(other: any):any {
         return { ...this.repo, ...other };
     }
+
+    protected serializeToString(value: any): string {
+        return JSON.stringify(value, undefined, 2);
+    }
 }
