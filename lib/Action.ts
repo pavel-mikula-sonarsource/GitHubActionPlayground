@@ -24,6 +24,7 @@ export abstract class Action {
     run() {
         try {
             this.execute();
+            this.log("Done");
         }
         catch (ex) {
             core.setFailed(ex.message);
@@ -34,7 +35,7 @@ export abstract class Action {
         console.log(line);
     }
 
-    protected addRepo(other: any):any {
+    protected addRepo(other: any): any {
         return { ...this.repo, ...other };
     }
 

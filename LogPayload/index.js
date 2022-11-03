@@ -1,17 +1,13 @@
-// GitHub API Docs: https://octokit.github.io/rest.js/v18
-// Scaffolding inspired by: https://github.com/actions/github-script
-// YML events: https://docs.github.com/en/free-pro-team@latest/actions/reference/events-that-trigger-workflows#pull_request_review
-// To run the script locally from PowerShell:
-// clear; node .\index.js
-const core = require('@actions/core');
-const github = require('@actions/github');
-try {
-    console.log("--- Event payload ---");
-    console.log(JSON.stringify(github.context.payload, undefined, 2));
-    console.log("----------");
-    console.log("Done");
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const Action_1 = require("../lib/Action");
+class LogPayload extends Action_1.Action {
+    execute() {
+        this.log("--- Event payload ---");
+        this.log(this.serializeToString(this.payload));
+        this.log("----------");
+    }
 }
-catch (ex) {
-    core.setFailed(ex.message);
-}
+const action = new LogPayload();
+action.run();
 //# sourceMappingURL=index.js.map
