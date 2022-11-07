@@ -37,3 +37,9 @@ jobs:
                 github.projects.createCard({ column_id: IN_PROGRESS_COLUMN, content_id: context.payload.pull_request.id, content_type: "PullRequest" });
                 console.log("Done");
             }
+
+  LogPayload_job:
+    name: Log payload
+    runs-on: ubuntu-latest
+    steps:
+      - uses: sonarsource/gh-action-lt-backlog/LogPayload@v1
