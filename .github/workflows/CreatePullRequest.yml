@@ -15,7 +15,7 @@ jobs:
         github.event.pull_request.head.repo.full_name == github.repository
         && github.event.sender.type != 'Bot'
     steps:
-      - uses: sonarsource/gh-action-lt-backlog/AssignCardToSender@Pavel/RSpecCard
+      - uses: sonarsource/gh-action-lt-backlog/CreateCardForStandalonePR@Pavel/RSpecCard
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           column-id: 11144557
