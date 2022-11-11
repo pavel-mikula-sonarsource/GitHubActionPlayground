@@ -5,107 +5,17 @@ on:
     types: ["review_requested"]
 
 jobs:
-  assign_and_move_card:
-    name: Assign issue to reviewer and move Kanban card
+  RequestReview_job:
+    name: Request review
     runs-on: ubuntu-latest
-
     steps:
-      # https://github.com/actions/github-script
-      - uses: actions/github-script@v4.0.2
+      - uses: sonarsource/gh-action-lt-backlog/RequestReview@Pavel/Reviews
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
-          script: |
-            const TODO_COLUMN = 11144556;
-            const IN_PROGRESS_COLUMN = 11144557;
-            const REVIEW_IN_PROGRESS_COLUMN = 11144558;
-            const REVIEW_APPROVED_COLUMN = 11144559;
-            const VALIDATE_PEACH_COLUMN = 12684699;
-            const DONE_COLUMN = 11144560;
-            //
-            async function getIssue(issue_number) {
-                try {
-                    return (await github.issues.get({
-                        owner: context.repo.owner,
-                        repo: context.repo.repo,
-                        issue_number
-                    })).data;
-                }
-                catch (error) {
-                    console.log(`Issue #${issue_number} not found: ${error}`);
-                    return null;
-                }
-            }
-            //
-            async function findCard(content_url) {
-                // Columns are searched from the most probable one
-                const allColumns = [REVIEW_IN_PROGRESS_COLUMN, REVIEW_APPROVED_COLUMN, IN_PROGRESS_COLUMN, TODO_COLUMN, VALIDATE_PEACH_COLUMN, DONE_COLUMN];
-                for (let i = 0; i < allColumns.length; i++) {
-                    let cards = await github.projects.listCards({ column_id: allColumns[i] });
-                    let card = cards.data.find(x => x.content_url == content_url);
-                    if (card) {
-                        return card;
-                    }
-                }
-                console.log("Card not found for: " + content_url);
-                return null;
-            }
-            //
-            async function removeAssignees(issue){
-                const oldAssignees = issue.assignees.map(x => x.login);
-                if (oldAssignees.length !== 0) {
-                    console.log("Removing assignees: " + oldAssignees.join(", "));
-                    await github.issues.removeAssignees({
-                        owner: context.repo.owner,
-                        repo: context.repo.repo,
-                        issue_number: issue.number,
-                        assignees: oldAssignees
-                    });
-                }
-            }
-            //
-            async function addAssignee(issue, login) {
-                console.log("Assigning to: " + login);
-                await github.issues.addAssignees({
-                    owner: context.repo.owner,
-                    repo: context.repo.repo,
-                    issue_number: issue.number,
-                    assignees: [login]
-                });
-            }
-            //
-            async function processIssue(issue) {
-                await removeAssignees(issue);
-                addAssignee(issue, context.payload.requested_reviewer.login);
-                const card = await findCard(issue.url);
-                if (card) {
-                    console.log("Moving card");
-                    github.projects.moveCard({ card_id: card.id, position: "bottom", column_id: REVIEW_IN_PROGRESS_COLUMN });
-                } else if (issue.pull_request) {
-                    console.log("Creating PR card");
-                    github.projects.createCard({ column_id: REVIEW_IN_PROGRESS_COLUMN, content_id: context.payload.pull_request.id, content_type: "PullRequest" });
-                } else {
-                    console.log("Creating Issue card");
-                    github.projects.createCard({ column_id: REVIEW_IN_PROGRESS_COLUMN, content_id: issue.id, content_type: "Issue" });
-                }
-            }
-            //
-            let processPR = true;
-            const matches = context.payload.pull_request.body == null ? null : context.payload.pull_request.body.match(/Fixes\s*#\d+/gi);
-            if (matches) {
-                for (let i = 0; i < matches.length; i++) {
-                    console.log("Processing linked issue: " + matches[i]);
-                    let linkedIssue = await getIssue(matches[i].split("#")[1]);
-                    if (linkedIssue) {
-                        processPR = false;
-                        processIssue(linkedIssue);
-                    }
-                }
-            }
-            if (processPR) {
-                console.log("Processing PR: #" + context.payload.number);
-                const issue = await getIssue(context.payload.number);
-                if (issue && issue.state == "open") {
-                    processIssue(issue);
-                }
-            }
-            console.log("Done");
+          column-id: 11144558     # Kanban "Review in progress" column
+
+  LogPayload_job:
+    name: Log payload
+    runs-on: ubuntu-latest
+    steps:
+      - uses: sonarsource/gh-action-lt-backlog/LogPayload@v1
