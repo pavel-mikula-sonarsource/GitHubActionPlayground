@@ -11,7 +11,7 @@ jobs:
         github.event.changes.column_id.from == 11144556
         && github.event.project_card.content_url != null
     steps:
-      - uses: sonarsource/gh-action-lt-backlog/AssignCardToSender@Pavel/AssignCardToSender
+      - uses: sonarsource/gh-action-lt-backlog/AssignCardToSender@Pavel/Dev
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
 

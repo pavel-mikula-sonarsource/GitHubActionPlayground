@@ -14,7 +14,7 @@ jobs:
         github.event.pull_request.head.repo.full_name == github.repository
         && github.event.review.state == 'changes_requested'
     steps:
-      - uses: sonarsource/gh-action-lt-backlog/MoveCardAfterReview@v1
+      - uses: sonarsource/gh-action-lt-backlog/MoveCardAfterReview@Pavel/Dev
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           column-id: 11144557     # Kanban "In progress" column
@@ -26,7 +26,7 @@ jobs:
         github.event.pull_request.head.repo.full_name == github.repository
         && github.event.review.state == 'approved'
     steps:
-      - uses: sonarsource/gh-action-lt-backlog/MoveCardAfterReview@v1
+      - uses: sonarsource/gh-action-lt-backlog/MoveCardAfterReview@Pavel/Dev
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           column-id: 11144559     # Kanban "Review approved" column

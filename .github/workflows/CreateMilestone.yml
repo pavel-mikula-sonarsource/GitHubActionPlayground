@@ -9,7 +9,7 @@ jobs:
     name: Create RSPEC Issue
     runs-on: ubuntu-latest
     steps:
-      - uses: sonarsource/gh-action-lt-backlog/CreateRspecIssue@Pavel/RSpecCard
+      - uses: sonarsource/gh-action-lt-backlog/CreateRspecIssue@Pavel/Dev
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           column-id: 11144556

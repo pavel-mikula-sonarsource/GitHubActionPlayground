@@ -9,7 +9,7 @@ jobs:
     name: Request review
     runs-on: ubuntu-latest
     steps:
-      - uses: sonarsource/gh-action-lt-backlog/RequestReview@Pavel/Reviews
+      - uses: sonarsource/gh-action-lt-backlog/RequestReview@Pavel/Dev
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           column-id: 11144558     # Kanban "Review in progress" column
