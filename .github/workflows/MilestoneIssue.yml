@@ -1,48 +1,24 @@
-name: Milesone Issue
+name: Milestone Issue
 
 on:
   issues:
     types: ["milestoned"]
 
 jobs:
-  create_card:
+  CreateCardForMilestonedIssue_job:
     name: Create card
     runs-on: ubuntu-latest
     # Single quotes must be used here https://docs.github.com/en/free-pro-team@latest/actions/reference/context-and-expression-syntax-for-github-actions#literals
     if: github.event.issue.state != 'closed'
 
     steps:
-      # https://github.com/actions/github-script
-      - uses: actions/github-script@v4.0.2
+      - uses: sonarsource/gh-action-lt-backlog/CreateCardForIssue@Pavel/Dev
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
-          script: |
-            const TODO_COLUMN = 11144556;
-            const IN_PROGRESS_COLUMN = 11144557;
-            const REVIEW_IN_PROGRESS_COLUMN = 11144558;
-            const REVIEW_APPROVED_COLUMN = 11144559;
-            const VALIDATE_PEACH_COLUMN = 12684699;
-            const DONE_COLUMN = 11144560;
-            //
-            async function findCard(content_url) {
-                // Columns are searched from the most probable one
-                const allColumns = [TODO_COLUMN, IN_PROGRESS_COLUMN, REVIEW_IN_PROGRESS_COLUMN, REVIEW_APPROVED_COLUMN, VALIDATE_PEACH_COLUMN, DONE_COLUMN];
-                for (let i = 0; i < allColumns.length; i++) {
-                    let cards = await github.projects.listCards({ column_id: allColumns[i] });
-                    let card = cards.data.find(x => x.content_url == content_url);
-                    if (card) {
-                        return card;
-                    }
-                }
-                console.log("Card not found for: " + content_url);
-                return null;
-            }
-            //
-            const card = await findCard(context.payload.issue.url);
-            if (card) {
-                console.log("Card already exists");
-            } else {
-                console.log("Creating Issue card");
-                github.projects.createCard({ column_id: TODO_COLUMN, content_id: context.payload.issue.id, content_type: "Issue" });
-            }
-            console.log("Done");
+          column-id: 11144556     # Kanban "To do" column
+
+  LogPayload_job:
+    name: Log payload
+    runs-on: ubuntu-latest
+    steps:
+      - uses: sonarsource/gh-action-lt-backlog/LogPayload@v1

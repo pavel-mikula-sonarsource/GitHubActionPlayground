@@ -65,3 +65,9 @@ jobs:
             } else {
                 console.log("Unexpected label name: " + labelName);
             }
+
+  LogPayload_job:
+    name: Log payload
+    runs-on: ubuntu-latest
+    steps:
+      - uses: sonarsource/gh-action-lt-backlog/LogPayload@v1

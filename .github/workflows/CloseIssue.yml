@@ -49,3 +49,9 @@ jobs:
             //
             processIssue(typeof context.payload.issue == "undefined" ? context.payload.pull_request.issue_url : context.payload.issue.url);
             console.log("Done");
+
+  LogPayload_job:
+    name: Log payload
+    runs-on: ubuntu-latest
+    steps:
+      - uses: sonarsource/gh-action-lt-backlog/LogPayload@v1
