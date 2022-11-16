@@ -15,7 +15,7 @@ jobs:
         && startsWith(github.event.label.name, 'Type: ')
 
     steps:
-      - uses: sonarsource/gh-action-lt-backlog/CreateCardForIssueFromLabel@dev/Pavel
+      - uses: sonarsource/gh-action-lt-backlog/CreateCardForIssueFromLabel@Pavel/Dev
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           project-id: 12681611        # Backlog project ID
@@ -28,7 +28,7 @@ jobs:
         && startsWith(github.event.label.name, 'Kind: ')
 
     steps:
-      - uses: sonarsource/gh-action-lt-backlog/CreateCardForIssueFromLabel@dev/Pavel
+      - uses: sonarsource/gh-action-lt-backlog/CreateCardForIssueFromLabel@Pavel/Dev
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           project-id: 12681611      # Backlog project ID
