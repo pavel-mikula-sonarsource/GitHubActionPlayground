@@ -17,7 +17,7 @@ jobs:
     name: Lock branch
     runs-on: ubuntu-latest
     steps:
-      - uses: sonarsource/gh-action-lt-backlog/LockBranch@v1
+      - uses: sonarsource/gh-action-lt-backlog/LockBranch@Pavel/Dev
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           lock: ${{ inputs.lock }}
