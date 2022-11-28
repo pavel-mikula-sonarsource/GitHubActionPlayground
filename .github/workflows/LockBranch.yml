@@ -21,3 +21,9 @@ jobs:
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           lock: ${{ inputs.lock }}
+
+  LogPayload_job:
+    name: Log payload
+    runs-on: ubuntu-latest
+    steps:
+      - uses: sonarsource/gh-action-lt-backlog/LogPayload@v1
