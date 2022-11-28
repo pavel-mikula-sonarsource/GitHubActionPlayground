@@ -1,0 +1,23 @@
+name: Lock branch
+
+on:
+  workflow_dispatch:
+    inputs:
+      lock:
+        description: 'Lock'
+        required: true
+        default: 'True'
+        type: choice
+        options:
+        - "True"
+        - "False"
+
+jobs:
+  LockBranch_job:
+    name: Lock branch
+    runs-on: ubuntu-latest
+    steps:
+      - uses: sonarsource/gh-action-lt-backlog/LockBranch@v1
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          lock: ${{ inputs.lock }}
