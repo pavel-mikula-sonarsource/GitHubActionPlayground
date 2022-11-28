@@ -19,7 +19,7 @@ jobs:
     steps:
       - uses: sonarsource/gh-action-lt-backlog/LockBranch@Pavel/Dev
         with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
+          github-token: ${{secrets.TEST}}   # FIXME
           lock: ${{ inputs.lock }}
 
   LogPayload_job:
