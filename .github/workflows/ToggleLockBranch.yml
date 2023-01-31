@@ -10,7 +10,7 @@ jobs:
     steps:
       - uses: sonarsource/gh-action-lt-backlog/ToggleLockBranch@Pavel/Dev
         with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
+          github-token: ${{secrets.TOGGLELOCKBRANCH_TOKEN}}
           branch-pattern: "Pavel/Test"     # Optional
 
   LogPayload_job:
