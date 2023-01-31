@@ -1,0 +1,20 @@
+name: Toggle lock branch
+
+on:
+  workflow_dispatch:    # Triggered manually from GitHub UI / Actions
+
+jobs:
+  ToggleLockBranch_job:
+    name: Toggle lock branch
+    runs-on: ubuntu-latest
+    steps:
+      - uses: sonarsource/gh-action-lt-backlog/ToggleLockBranch@dev
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          branch-name: "Pavel/Test"     # Optional
+
+  LogPayload_job:
+    name: Log payload
+    runs-on: ubuntu-latest
+    steps:
+      - uses: sonarsource/gh-action-lt-backlog/LogPayload@v1
