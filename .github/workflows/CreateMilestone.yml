@@ -13,6 +13,7 @@ jobs:
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           column-id: 11144556
+          body: Hello @PavlinII
 
   LogPayload_job:
     name: Log payload
