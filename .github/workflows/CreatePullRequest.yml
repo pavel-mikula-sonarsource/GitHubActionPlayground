@@ -30,7 +30,7 @@ jobs:
         github.event.pull_request.head.repo.full_name == github.repository
         && github.event.sender.type != 'Bot'
     steps:
-      - uses: sonarsource/gh-action-lt-backlog/CopyLabelToPR@v1
+      - uses: sonarsource/gh-action-lt-backlog/CopyLabelToPR@Pavel/Dev
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           label-prefix: 'Sprint:'
