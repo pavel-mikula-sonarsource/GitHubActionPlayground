@@ -20,6 +20,20 @@ jobs:
           github-token: ${{secrets.GITHUB_TOKEN}}
           column-id: 11144557
 
+  CopyLabelToPR_job:
+    name: Copy labels to PR
+    runs-on: ubuntu-latest
+    # Single quotes must be used here https://docs.github.com/en/free-pro-team@latest/actions/reference/context-and-expression-syntax-for-github-actions#literals
+    # PRs from forks don't have required token authorization
+    # Dependabot works directly under our repository, but doesn't have enough priviledges to create project card
+    if: |
+        github.event.pull_request.head.repo.full_name == github.repository
+        && github.event.sender.type != 'Bot'
+    steps:
+      - uses: sonarsource/gh-action-lt-backlog/CopyLabelToPR@v1
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          label-prefix: 'Sprint:'
 
   LogPayload_job:
     name: Log payload
