@@ -12,7 +12,7 @@ jobs:
     # Only limited global functions are available in this context https://docs.github.com/en/actions/reference/context-and-expression-syntax-for-github-actions#functions
     if: |
         github.event.issue.state == 'Open'
-        && startsWith(github.event.label.name, 'Type: ')
+        && startsWith(github.event.label.name, 'Type:')
 
     steps:
       - uses: sonarsource/gh-action-lt-backlog/CreateCardForIssueFromLabel@Pavel/Dev
@@ -25,7 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     if: |
         github.event.issue.state == 'Open'
-        && startsWith(github.event.label.name, 'Kind: ')
+        && startsWith(github.event.label.name, 'Kind:')
 
     steps:
       - uses: sonarsource/gh-action-lt-backlog/CreateCardForIssueFromLabel@Pavel/Dev
@@ -33,6 +33,21 @@ jobs:
           github-token: ${{secrets.GITHUB_TOKEN}}
           project-id: 12681611      # Backlog project ID
           label-prefix: "Kind:"     # Optional. Update startsWith condition above if you change it.
+
+  CreateCardForLabeledIssue_job:
+    name: Create card for labeled issue
+    runs-on: ubuntu-latest
+    # Single quotes must be used here https://docs.github.com/en/free-pro-team@latest/actions/reference/context-and-expression-syntax-for-github-actions#literals
+    # Only limited global functions are available in this context https://docs.github.com/en/actions/reference/context-and-expression-syntax-for-github-actions#functions
+    if: |
+        github.event.issue.state != 'closed'
+        && startsWith(github.event.label.name, 'Sprint:')
+
+    steps:
+      - uses: sonarsource/gh-action-lt-backlog/CreateCardForIssue@Pavel/Dev
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          column-id: 11144556     # Kanban "To do" column
 
   LogPayload_job:
     name: Log payload
