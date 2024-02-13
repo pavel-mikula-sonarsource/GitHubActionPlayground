@@ -1,6 +1,13 @@
 # https://docs.github.com/en/code-security/supply-chain-security/configuration-options-for-dependency-updates
 
 version: 2
+
+registries:
+
+  nuget-org:
+    type: nuget-feed
+    url: https://api.nuget.org/v3/index.json
+
 updates:
 
   - package-ecosystem: "github-actions"
