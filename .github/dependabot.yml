@@ -7,6 +7,8 @@ registries:
   nuget-org:
     type: nuget-feed
     url: https://api.nuget.org/v3/index.json
+    username: ""
+    password: ""
 
 updates:
 
