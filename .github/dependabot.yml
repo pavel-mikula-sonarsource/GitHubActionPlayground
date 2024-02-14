@@ -9,6 +9,7 @@ registries:
     url: https://api.nuget.org/v3/index.json
     username: ""
     password: ""
+    replaces-base: true
 
 updates:
 
