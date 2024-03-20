@@ -1,0 +1,37 @@
+﻿
+changelog:
+  exclude:
+    labels:
+      - "Type: Tooling"
+    authors:
+      - "dependabot[bot]"
+      - "app/renovate"
+
+  categories:
+    - title: New Rules
+      labels:
+        - "Type: New Rule"
+        - "Type: Abc"
+    - title: New Features
+      labels:
+        - "Type: New Feature"
+        - "Type: Def"
+    - title: "Improvements"
+      labels:
+        - "Type: Performance"
+        - "Type: Improvement"
+        - "Type: Code Fix"
+        - "Type: Ghi"
+    - title: Bugs
+      labels:
+        - "Type: Bug"
+    - title: False Positive
+      labels:
+        - "Type: False Positive"
+        - "Type: CFG/SE FPs"
+    - title: False Negative
+      labels:
+        - "Type: False Negative"
+    - title: Other Changes
+      labels:
+        - "*"
