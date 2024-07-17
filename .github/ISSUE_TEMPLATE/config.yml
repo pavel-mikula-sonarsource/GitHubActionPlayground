@@ -5,7 +5,7 @@ contact_links:
     about: Community Forum - SonarLint for Visual Studio.
   - name: Report False-positive / False-negative
     url: https://community.sonarsource.com/c/clean-code/fp/7
-    about: Report problems with raised issues on our Community Forum.
+    about: Report problems with raised issues.
   - name: Suggest new feature
     url: https://community.sonarsource.com/c/sl/pm-for-a-day-sl/41
     about: Community Forum - Product Manager for a Day
